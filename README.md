@@ -30,7 +30,7 @@
 9. **مؤشر التصويب والمكعب المضيء (Highlight & Crosshair):** نظام تحديد ذكي للمكعب المواجه للاعب (Raycasting) مع إضاءة حواف المكعب لمنع تداخل الأسطح هندسيًا (Z-Fighting).
 ---
 
-![screenshot](pre-alpha 0.1/Screenshot.png)
+![screenshot](.Screenshot.png)
 
 ---
 ###  أمر التجميع (Compilation Code)
