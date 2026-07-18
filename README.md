@@ -39,3 +39,7 @@
 للتجميع على بيئة Windows باستخدام مترجم GCC لنسخة 32-bit:
 ```bash
 gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
+```
+
+### إصدار Pre-Alpha 0.2 (قيد التطوير )
+* تم إضافة خط Pixel-Art Minecraft font للواجهة بدلاً من Arial.
