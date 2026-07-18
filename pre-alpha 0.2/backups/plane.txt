@@ -1,0 +1,25 @@
+📁 tinycraft - 3D
+├── 📁 pre-alpha 0.2 				(اول اصدار مكتمل بدون اخطاء ومستقر)
+│	├──  📁 Backup 					(نسخ احتياطيه من المشروع)
+│	├──  📁 SDL2
+│	│   	├── 📁 bin       		(ملفات SDL2.dll وأي dll آخر تحتاجه)
+│	│   	├── 📁 include   		(ملفات الرأس SDL.h وغيرها)
+│	│   	└── 📁 lib       		(ملفات .a للتجميع 32-bit)
+│	├── 	📁 res
+│	│   	├── 📄 grass.bmp 		(تحويلها لـ BMP يسهل العمل مباشرة)
+│	│   	└── 📄 stone.bmp
+│	│		└── 📄 wood.bmp
+│	├── 	📁 src
+│	│   	├── 📄 common.h     		(💡 جديد: الثوابت والهياكل المشتركة)
+│	│   	├── 📄 map.c / .h   		(العالم اللانهائي، التكسير، البناء، الحفظ)
+│	│   	├── 📄 player.c / .h 	(حركة اللاعب، الفيزياء، إعادة التموضع)
+│	│   	├── 📄 textures.c / .h 	(تحميل وإدارة الأنسجة)
+│	│   	└── 📄 gameloop.c / .h 	(حلقة اللعبة الرسم، وتحديد المكعب المضيء)
+│	└── 	📄 main.c        		(نقطة الانطلاق وربط المكونات ببعضها)
+└── 📁 pre-alpha 0.3 				(مجلد الاصدار القادم قريبا)
+
+كود التجميع للمترجم: 
+gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
+
+features:
+1. Minecraf Font
