@@ -29,10 +29,10 @@
 8. **حدود الارتفاع البنائي:** تحديد سقف برميجي لمنع تخطي اللاعب لارتفاع 250 مكعبًا فوق سطح الأرض لضمان استقرار العرض.
 9. **مؤشر التصويب والمكعب المضيء (Highlight & Crosshair):** نظام تحديد ذكي للمكعب المواجه للاعب (Raycasting) مع إضاءة حواف المكعب لمنع تداخل الأسطح هندسيًا (Z-Fighting).
 
+## Screenshot
+  https://github.com/youessf695/tinycraft3D/blob/main/pre-alpha%200.1/Screenshot.png
+
 ###  أمر التجميع (Compilation Code)
 للتجميع على بيئة Windows باستخدام مترجم GCC لنسخة 32-bit:
 ```bash
 gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
-
-## Screenshot
-  https://github.com/youessf695/tinycraft3D/blob/main/pre-alpha%200.1/Screenshot.png
