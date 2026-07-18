@@ -31,7 +31,7 @@
 
 ---
 
-![screenshot](.Screenshots/Screenshots/Screenshot-pre-alpha-0.1.png)  
+![screenshot](.Screenshots/Screenshot-pre-alpha-0.1.png)  
 
 ---
 
