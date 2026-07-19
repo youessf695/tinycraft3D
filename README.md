@@ -45,19 +45,18 @@ gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32
 
 ---
 
-![screenshot](Screenshots/Screenshot-pre-alpha-0.2.png)  
+![screenshot](Screenshots/Screenshot-pre-alpha-0.2.png)
 
 ---
 
-### المميزات والاضافات
+### المميزات والإضافات
 
-
-1. **تم إضافة خط Pixel-Art `Minecraft font` للواجهة بدلاً من `Arial`.
-2. **إخفاء وإظهار نص واجهة المستخدم الذي على الشاشة باستخدام `F12`.
-3. **إضافة `chunks` النظام `blocks`.**
+1. **تم إضافة خط Pixel-Art `Minecraft font` للواجهة بدلاً من `Arial`.**
+2. **إخفاء وإظهار نص واجهة المستخدم الذي على الشاشة باستخدام `F12`.**
+3. **إضافة `chunks` لنظام `blocks`.**
 4. **إضافة مواد جديدة مثل:**
-   * **`dirt` تراب.
-   * **`dirtgrass` عشب ترابي.
-   * **`bricks` طوب.
-5. **صور ذات `textures` محسّن.
-6. **تحسين الضباب وربطه بقيمة `chunks`.
+    * **`dirt`:** تراب.
+    * **`dirtgrass`:** عشب ترابي.
+    * **`bricks`:** طوب.
+5. **صور ذات `textures` محسّن.**
+6. **تحسين الضباب وربطه بقيمة `chunks`.**
