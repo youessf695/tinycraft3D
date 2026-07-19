@@ -34,13 +34,7 @@
    * ظهور إشعار أخضر مميز وجذاب عند حفظ اللعبة بنجاح: `"Game Saved Successfully!"`.
 8. **حدود الارتفاع البنائي:** تحديد سقف برميجي لمنع تخطي اللاعب لارتفاع 250 مكعبًا فوق سطح الأرض لضمان استقرار العرض.
 9. **مؤشر التصويب والمكعب المضيء (Highlight & Crosshair):** نظام تحديد ذكي للمكعب المواجه للاعب (Raycasting) مع إضاءة حواف المكعب لمنع تداخل الأسطح هندسيًا (Z-Fighting).
-
-###  أمر التجميع (Compilation Code)
-للتجميع على بيئة Windows باستخدام مترجم GCC لنسخة 32-bit:
-```bash
-gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
-```
-
+10. 
 ## إصدار Pre-Alpha 0.2 (مكتمل ومستقر)
 
 ---
@@ -60,3 +54,11 @@ gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32
     * **`bricks`:** طوب.
 5. **صور ذات `textures` محسّن.**
 6. **تحسين الضباب وربطه بقيمة `chunks`.**
+
+
+##  أمر التجميع (Compilation Code)
+للتجميع على بيئة Windows باستخدام مترجم GCC لنسخة 32-bit:
+```bash
+gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
+```
+
