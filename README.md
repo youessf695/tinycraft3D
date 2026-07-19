@@ -56,8 +56,8 @@ gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32
 2. ** إخفاء وإظهار نص واجهة المستخدم الذي على الشاشة باستخدام `F12`
 3. ** إضافة `chunks` النظام `blocks`
 4. ** إضافة مواد جديدة مثل
-   * dirt
-   * dirtgrass
-   * bricks
+* dirt
+* dirtgrass
+* bricks
 5. صور ذات `textures` محسّن
 6. تحسين الضباب وربطه بقيمة `chunks`
