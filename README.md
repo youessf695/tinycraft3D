@@ -41,5 +41,23 @@
 gcc -m32 main.c src/*.c -o TinyCraft.exe -I./SDL2/include -L./SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lSDL2_ttf -lm -mwindows
 ```
 
-### إصدار Pre-Alpha 0.2 (قيد التطوير )
-* تم إضافة خط Pixel-Art Minecraft font للواجهة بدلاً من Arial.
+## إصدار Pre-Alpha 0.2 (مكتمل ومستقر)
+
+---
+
+![screenshot](Screenshots/Screenshot-pre-alpha-0.2.png)  
+
+---
+
+### المميزات والاضافات
+
+
+1. ** تم إضافة خط Pixel-Art `Minecraft font` للواجهة بدلاً من `Arial`.
+2. ** إخفاء وإظهار نص واجهة المستخدم الذي على الشاشة باستخدام `F12`
+3. ** إضافة `chunks` النظام `blocks`
+4. ** إضافة مواد جديدة مثل
+   * dirt
+   * dirtgrass
+   * bricks
+5. صور ذات `textures` محسّن
+6. تحسين الضباب وربطه بقيمة `chunks`
