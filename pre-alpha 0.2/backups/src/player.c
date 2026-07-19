@@ -94,10 +94,10 @@ void handle_player_input(Player *player, float dt)
     player->vx = 0.0f;
     player->vz = 0.0f;
 
-    // 💡 [ميزة الرقض من زر Shift]: مضاعفة سرعة التحرك عند الضغط مطولاً على Shift
+    // 💡 دعم الركض من Shift أو Ctrl لتفادي تعارض الأزرار في الكيبورد
     float current_speed = MOVE_SPEED;
-    if (state[SDL_SCANCODE_LSHIFT]) {
-        current_speed = MOVE_SPEED * 1.8f; // زيادة السرعة بنسبة 80% للركض السريع
+    if (state[SDL_SCANCODE_LSHIFT] || (!player->is_flying && state[SDL_SCANCODE_LCTRL])) {
+        current_speed = MOVE_SPEED * 1.8f; 
     }
 
     if (state[SDL_SCANCODE_W])
@@ -121,30 +121,35 @@ void handle_player_input(Player *player, float dt)
         player->vz += right_z * current_speed;
     }
 
-    // 💡 التحكم في الارتفاع والانخفاض أثناء الطيران
+    // التحكم في الارتفاع والانخفاض أثناء الطيران أو القفز الطبيعي
     if (player->is_flying) {
-        player->vy = 0.0f; // إلغاء أي حركة عمودية تلقائية
+        player->vy = 0.0f; 
         if (state[SDL_SCANCODE_SPACE]) {
-            player->vy = current_speed; // الارتفاع للأعلى عند تعليق زر المسافة
+            player->vy = current_speed; 
         }
         if (state[SDL_SCANCODE_LCTRL]) {
-            player->vy = -current_speed; // الانخفاض للأسفل عند تعليق زر الكنترول اليسار
+            player->vy = -current_speed; 
         }
     } else {
-        // القفز الطبيعي فوق الأرض فقط
-        if (state[SDL_SCANCODE_SPACE] && player->is_grounded)
+        bool near_ground = player->is_grounded || is_colliding_at(player->x, player->y - 0.05f, player->z, player->width - 0.02f, player->height);
+        
+        if (state[SDL_SCANCODE_SPACE] && near_ground)
         {
             player->vy = JUMP_FORCE;
             player->is_grounded = false;
         }
     }
 
-    if (state[SDL_SCANCODE_1])
-        player->selected = BLOCK_GRASS;
+	if (state[SDL_SCANCODE_1])
+        player->selected = BLOCK_DIRT;   // زر 1 يختار التراب
     if (state[SDL_SCANCODE_2])
-        player->selected = BLOCK_STONE;
+        player->selected = BLOCK_GRASS;  // زر 2 يختار العشب
     if (state[SDL_SCANCODE_3])
-        player->selected = BLOCK_WOOD;
+        player->selected = BLOCK_STONE;  // زر 3 يختار الحجر
+    if (state[SDL_SCANCODE_4])
+        player->selected = BLOCK_WOOD;   // زر 4 يختار الخشب
+    if (state[SDL_SCANCODE_5])
+        player->selected = BLOCK_BRICKS; // زر 5 يختار الطوب الأحمر
 }
 
 void update_player(Player *player, float dt)

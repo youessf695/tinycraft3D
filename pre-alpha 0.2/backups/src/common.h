@@ -15,13 +15,17 @@
 #define GROUND_LEVEL 0      // مستوى سطح الأرض الافتراضي (العشب)
 #define MAP_DEPTH_LIMIT -15 // الهاوية تبدأ تحت مستوى -15 مكعباً
 
+extern int render_distance_chunks;
+
 // --- أنواع المكعبات ---
 typedef enum
 {
     BLOCK_AIR = 0,
-    BLOCK_GRASS = 1,
-    BLOCK_STONE = 2,
-    BLOCK_WOOD = 3
+    BLOCK_GRASS = 1,   // القيمة القديمة الأصلية للعشب
+    BLOCK_STONE = 2,   // القيمة القديمة الأصلية للحجر
+    BLOCK_WOOD = 3,    // القيمة القديمة الأصلية للخشب
+    BLOCK_DIRT = 4,    // المادة الجديدة 1
+    BLOCK_BRICKS = 5   // المادة الجديدة 2
 } BlockType;
 
 // --- هيكل بيانات المكعب ثلاثي الأبعاد (حفظ التعديلات) ---

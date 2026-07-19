@@ -1,4 +1,5 @@
 #include "textures.h"
+#include "common.h"  // 🔥 هذا هو السطر الناقص الذي سيحل المشكلة فوراً!
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #include <stdio.h>
@@ -56,22 +57,22 @@ static GLuint load_texture_to_gl(const char* filepath) {
 }
 
 bool load_all_textures(void) {
-    // تفعيل رسم الأنسجة ثنائية الأبعاد في OpenGL
     glEnable(GL_TEXTURE_2D);
 
-    // 💡 التعديل هنا: توجيه الكود للبحث في مجلد res الخاص بك
-    block_textures[1] = load_texture_to_gl("res/grass.bmp");  // مكعب العشب
-    block_textures[2] = load_texture_to_gl("res/stone.bmp");  // مكعب الحجر
-	block_textures[3] = load_texture_to_gl("res/wood.bmp");  // مكعب الخشب
+    block_textures[BLOCK_GRASS]  = load_texture_to_gl("res/grass.bmp");     // 1 -> الوجه العلوي
+    block_textures[BLOCK_STONE]  = load_texture_to_gl("res/stone.bmp");     // 2 -> الحجر
+    block_textures[BLOCK_WOOD]   = load_texture_to_gl("res/wood.bmp");      // 3 -> الخشب
+    block_textures[BLOCK_DIRT]   = load_texture_to_gl("res/dirt.bmp");      // 4 -> التربة والوجه السفلي للعشب
+    block_textures[BLOCK_BRICKS] = load_texture_to_gl("res/bricks.bmp");    // 5 -> الطوب الأحمر
+    block_textures[6]            = load_texture_to_gl("res/dirtgrass.bmp"); // 6 -> جوانب العشب الأربعة
 
-    // محاولة بديلة إذا كنت قد وضعت الصور بجانب ملف exe مباشرة
+    // الفولباك الاحتياطي (إذا كانت الملفات بجانب الـ exe مباشرة)
     if (block_textures[1] == 0) block_textures[1] = load_texture_to_gl("grass.bmp");
     if (block_textures[2] == 0) block_textures[2] = load_texture_to_gl("stone.bmp");
-	if (block_textures[3] == 0) block_textures[2] = load_texture_to_gl("wood.bmp");
-
-    if (block_textures[1] == 0 || block_textures[2] == 0 || block_textures[3] == 0) {
-        printf("Warning: Could not load some texture files. Please ensure grass.bmp, stone.bmp and wood.bmp exist in the 'res' folder!\n");
-    }
+    if (block_textures[3] == 0) block_textures[3] = load_texture_to_gl("wood.bmp");
+    if (block_textures[4] == 0) block_textures[4] = load_texture_to_gl("dirt.bmp");
+    if (block_textures[5] == 0) block_textures[5] = load_texture_to_gl("bricks.bmp");
+    if (block_textures[6] == 0) block_textures[6] = load_texture_to_gl("dirtgrass.bmp");
 
     return true;
 }

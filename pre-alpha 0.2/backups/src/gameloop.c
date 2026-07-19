@@ -14,6 +14,7 @@ static SDL_GLContext gl_context = NULL;
 static Player player;
 static bool is_running = true;
 static bool mouse_grabbed = true;
+static bool show_hud = false; // 💡 ميزة P-A 0.2: إخفاء واجهة النصوص عند بدء اللعبة افتراضياً
 
 // متغيرات واجهة المستخدم والنصوص الآمنة
 static TTF_Font *game_font = NULL;
@@ -28,6 +29,10 @@ static Uint32 notification_timer = 0;
 static GLuint block_tex = 0;
 static int block_w = 0, block_h = 0, block_pot_w = 0, block_pot_h = 0;
 static BlockType last_selected = BLOCK_AIR;
+// --- متغيرات الكاش لعداد الفريمات FPS ---
+static GLuint fps_tex = 0;
+static int fps_w = 0, fps_h = 0, fps_pot_w = 0, fps_pot_h = 0;
+static int last_fps = -1;
 
 static GLuint coords_tex = 0;
 static int coords_w = 0, coords_h = 0, coords_pot_w = 0, coords_pot_h = 0;
@@ -292,13 +297,21 @@ bool init_game(void)
 
     glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
 
-    glEnable(GL_FOG);
-    GLfloat fogColor[4] = {0.5f, 0.7f, 1.0f, 1.0f};
-    glFogfv(GL_FOG_COLOR, fogColor);
-    glFogi(GL_FOG_MODE, GL_LINEAR);
-    glFogf(GL_FOG_START, 9.0f);
-    glFogf(GL_FOG_END, 15.5f);
-    glHint(GL_FOG_HINT, GL_NICEST);
+    void update_game_fog(void) {
+        glEnable(GL_FOG);
+        GLfloat fogColor[4] = {0.5f, 0.7f, 1.0f, 1.0f};
+        glFogfv(GL_FOG_COLOR, fogColor);
+        glFogi(GL_FOG_MODE, GL_LINEAR);
+
+        // الحساب الديناميكي بناءً على عدد الـ Chunks
+        float max_block_distance = render_distance_chunks * 16.0f;
+        float fog_start = max_block_distance * 0.60f; // يبدأ عند 60% من الرؤية
+        float fog_end = max_block_distance * 0.90f;   // ينتهي ويصبح كثيفاً عند 90% لحجب الحواف
+
+        glFogf(GL_FOG_START, fog_start);
+        glFogf(GL_FOG_END, fog_end);
+        glHint(GL_FOG_HINT, GL_NICEST);
+    }
 
     if (!load_all_textures())
         return false;
@@ -323,18 +336,36 @@ bool init_game(void)
 
 void run_game_loop(void)
 {
-    Uint32 last_time = SDL_GetTicks();
-    SDL_Event event;
+    Uint32 last_time = SDL_GetTicks(); //[cite: 1]
+    SDL_Event event;                   //[cite: 1]
+
+    // متغيرات حساب الـ FPS في الخلفية
+    Uint32 fps_last_time = SDL_GetTicks();
+    int frame_count = 0;
+    int current_fps_val = 0;
 
     while (is_running)
     {
-        Uint32 current_time = SDL_GetTicks();
-        float dt = (current_time - last_time) / 1000.0f;
-        last_time = current_time;
-        if (dt > 0.1f)
-            dt = 0.1f;
+        // زيادة عداد الفريمات مع كل دورة
+        frame_count++;
 
-        while (SDL_PollEvent(&event))
+        Uint32 current_time = SDL_GetTicks();            //[cite: 1]
+        float dt = (current_time - last_time) / 1000.0f; //[cite: 1]
+        last_time = current_time;                        //[cite: 1]
+        if (dt > 0.1f)                                   //[cite: 1]
+            dt = 0.1f;                                   //[cite: 1]
+
+        // --- حساب معدل الفريمات الفعلي كل 500 ميلي ثانية (نصف ثانية) ---
+        Uint32 now = SDL_GetTicks();
+        if (now - fps_last_time >= 500)
+        {
+            float elapsed = (now - fps_last_time) / 1000.0f;
+            current_fps_val = (int)(frame_count / elapsed);
+            frame_count = 0;
+            fps_last_time = now;
+        }
+
+        while (SDL_PollEvent(&event)) //[cite: 1]
         {
             if (event.type == SDL_QUIT)
             {
@@ -347,7 +378,13 @@ void run_game_loop(void)
                     mouse_grabbed = !mouse_grabbed;
                     SDL_SetRelativeMouseMode(mouse_grabbed ? SDL_TRUE : SDL_FALSE);
                 }
-                // 💡 [ميزة كشف الضغط المزدوج على Space لتفعيل الطيران]
+
+                // 🔥 إضافة التقاط زر F12 لعكس حالة إظهار وإخفاء النصوص
+                else if (event.key.keysym.sym == SDLK_F12)
+                {
+                    show_hud = !show_hud;
+                }
+
                 // 💡 [ميزة كشف الضغط المزدوج على Space لتفعيل الطيران]
                 else if (event.key.keysym.sym == SDLK_SPACE)
                 {
@@ -442,16 +479,16 @@ void run_game_loop(void)
             }
         }
 
-        if (mouse_grabbed)
-            handle_player_input(&player, dt);
-        update_player(&player, dt);
+        if (mouse_grabbed)                    //[cite: 1]
+            handle_player_input(&player, dt); //[cite: 1]
+        update_player(&player, dt);           //[cite: 1]
 
-        if (player.y > GROUND_LEVEL + 250.0f)
+        if (player.y > GROUND_LEVEL + 250.0f) //[cite: 1]
         {
-            player.y = GROUND_LEVEL + 250.0f;
+            player.y = GROUND_LEVEL + 250.0f; //[cite: 1]
         }
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //[cite: 1]
 
         // إعداد المنظور 3D
         glMatrixMode(GL_PROJECTION);
@@ -473,7 +510,32 @@ void run_game_loop(void)
         glRotatef(player.yaw, 0.0f, 1.0f, 0.0f);
         glTranslatef(-player.x, -(player.y + 1.6f), -player.z);
 
-        draw_map(player.x, player.y, player.z);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //[cite: 1]
+
+        // =============================================================
+        // 🌌 [الضباب الديناميكي الذكي المربوط بالـ Chunks بنسبة 100%]
+        // =============================================================
+        glEnable(GL_FOG);
+        
+        // لون السماء الأزرق ليتلاشى الأفق فيه بنعومة[cite: 1]
+        GLfloat fogColor[4] = {0.5f, 0.7f, 1.0f, 1.0f}; //[cite: 1]
+        glFogfv(GL_FOG_COLOR, fogColor); //[cite: 1]
+        glFogi(GL_FOG_MODE, GL_LINEAR); //[cite: 1]
+
+        // الحساب الفعلي بناءً على اختيار اللاعب للمقاطع
+        float max_block_distance = render_distance_chunks * 16.0f; 
+        
+        // الضباب يبدأ مبكراً ليصنع تدرجاً ناعماً، وينتهي عند 90% ليخفي لحظة تحميل الـ Chunks تماماً
+        float fog_start = max_block_distance * 0.60f; 
+        float fog_end = max_block_distance * 0.90f;   
+
+        glFogf(GL_FOG_START, fog_start);
+        glFogf(GL_FOG_END, fog_end);
+        glHint(GL_FOG_HINT, GL_NICEST); //[cite: 1]
+        // =============================================================
+
+        // رسم العالم ثلاثي الأبعاد[cite: 1]
+        draw_map(player.x, player.y, player.z); //[cite: 1]
 
         RayHit sight = perform_raycast();
         if (sight.hit)
@@ -484,58 +546,80 @@ void run_game_loop(void)
         // =============================================================
         // [قسم واجهة المستخدم ثنائي الأبعاد الموحد والآمن HUD 2D]
         // =============================================================
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);                       //[cite: 1]
+        glPushMatrix();                                    //[cite: 1]
+        glLoadIdentity();                                  //[cite: 1]
+        glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1); //[cite: 1]
+        glMatrixMode(GL_MODELVIEW);                        //[cite: 1]
+        glPushMatrix();                                    //[cite: 1]
+        glLoadIdentity();                                  //[cite: 1]
 
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_FOG);
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);                          //[cite: 1]
+        glDisable(GL_FOG);                                 //[cite: 1]
+        glDisable(GL_CULL_FACE);                           //[cite: 1]
+        glEnable(GL_BLEND);                                //[cite: 1]
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //[cite: 1]
 
-        // --- 1. تحديث ورسم نص المكعب المحدد حالياً في اليد (مع دعم وضع الطيران) ---
-        if (player.selected != last_selected)
+        if (show_hud) //[cite: 1]
         {
-            last_selected = player.selected;
-            const char *block_name = "Selected Block: Grass (Press 1)";
-            if (player.selected == BLOCK_STONE)
-                block_name = "Selected Block: Stone (Press 2)";
-            if (player.selected == BLOCK_WOOD)
-                block_name = "Selected Block: Wood (Press 3)";
-            create_text_texture(&block_tex, block_name, &block_w, &block_h, &block_pot_w, &block_pot_h);
-        }
-        SDL_Color white_color = {255, 255, 255, 255};
-        draw_cached_text(block_tex, 20.0f, 20.0f, block_w, block_h, block_pot_w, block_pot_h, white_color);
-
-        // --- 2. تحديث ورسم إحداثيات اللاعب الحالية و إضافة نص [FLYING] إذا كان يطير ---
-        int cx = (int)floorf(player.x);
-        int cy = (int)floorf(player.y);
-        int cz = (int)floorf(player.z);
-        if (cx != last_cx || cy != last_cy || cz != last_cz)
-        {
-            last_cx = cx;
-            last_cy = cy;
-            last_cz = cz;
-            char coords_str[128];
-            if (player.is_flying)
+            // --- 1. نص المكعب المحدد حالياً (عند Y = 20) ---
+            // --- تحديث ورسم نص المكعب المحدد حالياً في اليد ---
+            if (player.selected != last_selected)
             {
-                sprintf(coords_str, "XYZ: %d / %d / %d [FLYING MODE]", cx, cy, cz);
-            }
-            else
-            {
-                sprintf(coords_str, "XYZ: %d / %d / %d", cx, cy, cz);
-            }
-            create_text_texture(&coords_tex, coords_str, &coords_w, &coords_h, &coords_pot_w, &coords_pot_h);
-        }
-        SDL_Color gold_color = {240, 220, 130, 255};
-        draw_cached_text(coords_tex, 20.0f, 50.0f, coords_w, coords_h, coords_pot_w, coords_pot_h, gold_color);
+                last_selected = player.selected; //[cite: 1]
+                const char *block_name = "Selected Block: Dirt (Press 1)";
 
-        // --- 3. رسم إشعار حفظ اللعبة التلقائي המוקוט ---
+                if (player.selected == BLOCK_GRASS)
+                    block_name = "Selected Block: Grass (Press 2)";
+                if (player.selected == BLOCK_STONE)
+                    block_name = "Selected Block: Stone (Press 3)";
+                if (player.selected == BLOCK_WOOD)
+                    block_name = "Selected Block: Wood (Press 4)";
+                if (player.selected == BLOCK_BRICKS)
+                    block_name = "Selected Block: Bricks (Press 5)";
+
+                create_text_texture(&block_tex, block_name, &block_w, &block_h, &block_pot_w, &block_pot_h); //[cite: 1]
+            }
+            SDL_Color white_color = {255, 255, 255, 255};                                                       //[cite: 1]
+            draw_cached_text(block_tex, 20.0f, 20.0f, block_w, block_h, block_pot_w, block_pot_h, white_color); //[cite: 1]
+
+            // --- 2. إحداثيات اللاعب الحالية (عند Y = 50) ---
+            int cx = (int)floorf(player.x);                      //[cite: 1]
+            int cy = (int)floorf(player.y);                      //[cite: 1]
+            int cz = (int)floorf(player.z);                      //[cite: 1]
+            if (cx != last_cx || cy != last_cy || cz != last_cz) //[cite: 1]
+            {
+                last_cx = cx;
+                last_cy = cy;
+                last_cz = cz;         //[cite: 1]
+                char coords_str[128]; //[cite: 1]
+                if (player.is_flying)
+                {                                                                       //[cite: 1]
+                    sprintf(coords_str, "XYZ: %d / %d / %d [FLYING MODE]", cx, cy, cz); //[cite: 1]
+                }
+                else
+                {                                                         //[cite: 1]
+                    sprintf(coords_str, "XYZ: %d / %d / %d", cx, cy, cz); //[cite: 1]
+                }
+                create_text_texture(&coords_tex, coords_str, &coords_w, &coords_h, &coords_pot_w, &coords_pot_h); //[cite: 1]
+            }
+            SDL_Color gold_color = {240, 220, 130, 255};                                                            //[cite: 1]
+            draw_cached_text(coords_tex, 20.0f, 50.0f, coords_w, coords_h, coords_pot_w, coords_pot_h, gold_color); //[cite: 1]
+
+            // 🔥 --- 3. جديد: تحديث ورسم عداد الفريمات FPS (عند Y = 80) ---
+            if (current_fps_val != last_fps)
+            {
+                last_fps = current_fps_val;
+                char fps_str[32];
+                sprintf(fps_str, "FPS: %d", current_fps_val);
+                create_text_texture(&fps_tex, fps_str, &fps_w, &fps_h, &fps_pot_w, &fps_pot_h);
+            }
+            // سنعطيه لوناً أخضراً فسفورياً جميلاً ومريحاً للعين
+            SDL_Color lime_green = {50, 255, 50, 255};
+            draw_cached_text(fps_tex, 20.0f, 80.0f, fps_w, fps_h, fps_pot_w, fps_pot_h, lime_green);
+        }
+
+        // --- 3. رسم إشعار حفظ اللعبة التلقائي --- (تركناه خارج الشرط لكي يرى اللاعب تأكيد الحفظ دائماً)
         if (notification_timer > 0 && SDL_GetTicks() - notification_timer < 3000)
         {
             SDL_Color green_color = {120, 255, 120, 255};
@@ -579,14 +663,18 @@ void run_game_loop(void)
 
 void clean_game(void)
 {
-    if (notification_tex != 0)
-        glDeleteTextures(1, &notification_tex);
-    if (block_tex != 0)
-        glDeleteTextures(1, &block_tex);
-    if (coords_tex != 0)
-        glDeleteTextures(1, &coords_tex);
+    if (notification_tex != 0)                  //[cite: 1]
+        glDeleteTextures(1, &notification_tex); //[cite: 1]
+    if (block_tex != 0)                         //[cite: 1]
+        glDeleteTextures(1, &block_tex);        //[cite: 1]
+    if (coords_tex != 0)                        //[cite: 1]
+        glDeleteTextures(1, &coords_tex);       //[cite: 1]
 
-    if (game_font)
+    // 🔥 تدمير تكستشر عداد الفريمات الآمن
+    if (fps_tex != 0)
+        glDeleteTextures(1, &fps_tex);
+
+    if (game_font) //[cite: 1]
     {
         TTF_CloseFont(game_font);
     }
